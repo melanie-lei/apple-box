@@ -1,2 +1,2 @@
 # apple-box
-Automated playing fruit box using PyAutoGUI
+Automated playing Fruit Box using PyAutoGUI
