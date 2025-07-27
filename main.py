@@ -80,15 +80,15 @@ def move_mouse(from_x, from_y, to_x, to_y):
         from_pixel_y = TOP_LEFT_Y + from_y * APPLE_WIDTH + APPLE_WIDTH + 7
         to_pixel_y = TOP_LEFT_Y + to_y * APPLE_WIDTH - 5
 
-    auto.moveTo(from_pixel_x, from_pixel_y)
+    auto.moveTo(from_pixel_x, from_pixel_y, duration=.05)
     multiplier = max(abs(from_x - to_x), abs(from_y - to_y))
-    auto.dragTo(to_pixel_x, to_pixel_y, duration=.45*multiplier, button="left")
+    auto.dragTo(to_pixel_x, to_pixel_y, .3*multiplier, auto.easeOutQuad, button="left")
 
 
 def pair_ten_algorithm(x, y):
     # return if theres no apple
     if board_map[y][x] == 0:
-        return
+        return False
     
     curr_num = board_map[y][x]
 
@@ -103,7 +103,7 @@ def pair_ten_algorithm(x, y):
             move_mouse(x, y, temp_x, temp_y)
             for i in range(x, temp_x + 1): # set all between to 0
                 board_map[y][i] = 0
-            return
+            return True
         elif temp_sum > 10: # 10 isnt possible
             break
         else: # sum is less than 10
@@ -118,7 +118,7 @@ def pair_ten_algorithm(x, y):
             move_mouse(x, y, temp_x, temp_y)
             for i in range(y, temp_y + 1): # set all between to 0
                 board_map[i][x] = 0
-            return
+            return True
         elif temp_sum > 10: # 10 isnt possible
             break
         else: # sum is less than 10
@@ -133,7 +133,7 @@ def pair_ten_algorithm(x, y):
             move_mouse(x, y, temp_x, temp_y)
             for i in range(temp_x, x + 1): # set all between to 0
                 board_map[y][i] = 0
-            return
+            return True
         elif temp_sum > 10: # 10 isnt possible
             break
         else: # sum is less than 10
@@ -148,19 +148,21 @@ def pair_ten_algorithm(x, y):
             move_mouse(x, y, temp_x, temp_y)
             for i in range(temp_y, y + 1): # set all between to 0
                 board_map[i][x] = 0
-            return
+            return True
         elif temp_sum > 10: # 10 isnt possible
             break
         else: # sum is less than 10
             temp_y-=1
-
+    return False
 
 # while timer is not out
 TIMER_GREEN = (24, 204, 112)
 timer_px = board.getpixel((TIMER_X, TIMER_Y))
-while (timer_px == TIMER_GREEN):
+game_valid = True
+while (timer_px == TIMER_GREEN and game_valid):
+    game_valid = False
     for i in range(NUM_APPLES_Y):
         for j in range(NUM_APPLES_X):
             # run pair 10 algo on
-            pair_ten_algorithm(j, i)
+            game_valid = pair_ten_algorithm(j, i)
     timer_px = board.getpixel((TIMER_X, TIMER_Y))
