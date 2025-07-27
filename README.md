@@ -7,4 +7,4 @@ Spent many hours playing Fruit Box but *Jason* still beat my score by **ONE** so
 ![Fruit Box Menu Screen](https://github.com/melanie-lei/apple-box/blob/main/fruitbox.png "Fruit Box Menu Screen")
 
 
-[^note]This program will not work if you have a regular sized monitor as it was programmed for my 2560 x 1080 monitor
+[^note]:  This program will not work if you have a regular sized monitor as it was programmed for my 2560 x 1080 monitor
