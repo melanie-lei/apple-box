@@ -2,25 +2,20 @@ import pyautogui as auto
 import time
 import math
 
-top_left_x = 952
-top_left_y = 230
-#, 982, 230
-apple_width = 36
-# 36
+TOP_LEFT_X = 952
+TOP_LEFT_Y = 230
 
-num_apples_x = 17
-num_apples_y = 10
+APPLE_WIDTH = 36
 
-timer_x = 1625
-timer_y = 580
+NUM_APPLES_X = 17
+NUM_APPLES_Y = 10
+
+TIMER_X = 1625
+TIMER_Y = 580
 
 board = auto.screenshot()
 
-board_map = [[0]*num_apples_x for i in range(num_apples_y)]
-
-# timerpx = board.getpixel((timer_x, timer_y)) # (24, 204, 112)
-
-#print(timerpx)
+board_map = [[0]*NUM_APPLES_X for i in range(NUM_APPLES_Y)]
 
 def white_count(x, y, row):
     count = 0
@@ -31,16 +26,9 @@ def white_count(x, y, row):
     if y == 8 or y == 9:
         row+=1
     for i in range(17):
-        px = board.getpixel((top_left_x + x * apple_width + 10 + i, top_left_y + y * apple_width + row))
-        #print(top_left_x + x * apple_width + 10 + i, end=" ")
-        #print(top_left_y + y * apple_width + row, end=" ")
-        #print(px, end=" ")
+        px = board.getpixel((TOP_LEFT_X + x * APPLE_WIDTH + 10 + i, TOP_LEFT_Y + y * APPLE_WIDTH + row))
         if px[0] > 210 and px[1] > 165 and px[2] > 165: # px is white
             count+=1
-    #print("\n")
-    #print("row and count")
-    #print(row)
-    #print(count)
     return count
 
 def get_apple_number(x, y):
@@ -69,34 +57,110 @@ def get_apple_number(x, y):
                 return 1
 
 
-
-for i in range(num_apples_y):
-    for j in range(num_apples_x):
-        # j , i is x, y coords
+# add numbers into board map
+for i in range(NUM_APPLES_Y):
+    for j in range(NUM_APPLES_X):
+        # x, y is j, i
         board_map[i][j] = get_apple_number(j, i)
-        print(board_map[i][j], end="   ")
-
-    print("\n")
 
 
 
-# if +24 is small, 4 or 7
-    # if +12 is big, 7
-    # else 4
-# else
-    # if +15 is >= 8? is 8 or 9
-        # +21 is >, is 8
-        # else 9
-    # else is 5, 3, 6, 1, 2
-        # if + 21 is >, is 6
-        # else if + 12 > 10?, is 5
-        # else if + 17 is >6, is 3
-        # else if +15 > 8, is 2
-        # else is 1
+def move_mouse(from_x, from_y, to_x, to_y):
+    if to_x > from_x: # dragging to the right
+        from_pixel_x = TOP_LEFT_X + from_x * APPLE_WIDTH - 5
+        to_pixel_x = TOP_LEFT_X + to_x * APPLE_WIDTH + APPLE_WIDTH + 7
+    else: # dragging to the left
+        from_pixel_x = TOP_LEFT_X + from_x * APPLE_WIDTH + APPLE_WIDTH + 7
+        to_pixel_x = TOP_LEFT_X + to_x * APPLE_WIDTH - 5
 
-# 5, (25, 20), (30, 30) NOT(20, 30) (25, 37)
+    if to_y > from_y: # dragging down
+        from_pixel_y = TOP_LEFT_Y + from_y * APPLE_WIDTH - 5
+        to_pixel_y = TOP_LEFT_Y + to_y * APPLE_WIDTH + APPLE_WIDTH + 7
+    else: # dragging up
+        from_pixel_y = TOP_LEFT_Y + from_y * APPLE_WIDTH + APPLE_WIDTH + 7
+        to_pixel_y = TOP_LEFT_Y + to_y * APPLE_WIDTH - 5
+
+    auto.moveTo(from_pixel_x, from_pixel_y)
+    multiplier = max(abs(from_x - to_x), abs(from_y - to_y))
+    auto.dragTo(to_pixel_x, to_pixel_y, duration=.45*multiplier, button="left")
 
 
-# 8, (25, 20)
+def pair_ten_algorithm(x, y):
+    # return if theres no apple
+    if board_map[y][x] == 0:
+        return
+    
+    curr_num = board_map[y][x]
 
-# find all pairs?
+    # check all surrounding apples if add up to 10
+    # right -> down -> left -> up
+    temp_x = x + 1
+    temp_y = y
+    temp_sum = curr_num
+    while temp_x < 17:
+        temp_sum += board_map[temp_y][temp_x]
+        if temp_sum == 10: # makes 10
+            move_mouse(x, y, temp_x, temp_y)
+            for i in range(x, temp_x + 1): # set all between to 0
+                board_map[y][i] = 0
+            return
+        elif temp_sum > 10: # 10 isnt possible
+            break
+        else: # sum is less than 10
+            temp_x+=1
+    
+    temp_x = x
+    temp_y = y + 1
+    temp_sum = curr_num
+    while temp_y < 10:
+        temp_sum += board_map[temp_y][temp_x]
+        if temp_sum == 10: # makes 10
+            move_mouse(x, y, temp_x, temp_y)
+            for i in range(y, temp_y + 1): # set all between to 0
+                board_map[i][x] = 0
+            return
+        elif temp_sum > 10: # 10 isnt possible
+            break
+        else: # sum is less than 10
+            temp_y+=1
+    
+    temp_x = x - 1
+    temp_y = y
+    temp_sum = curr_num
+    while temp_x >= 0:
+        temp_sum += board_map[temp_y][temp_x]
+        if temp_sum == 10: # makes 10
+            move_mouse(x, y, temp_x, temp_y)
+            for i in range(temp_x, x + 1): # set all between to 0
+                board_map[y][i] = 0
+            return
+        elif temp_sum > 10: # 10 isnt possible
+            break
+        else: # sum is less than 10
+            temp_x-=1
+    
+    temp_x = x
+    temp_y = y - 1
+    temp_sum = curr_num
+    while temp_y >= 0:
+        temp_sum += board_map[temp_y][temp_x]
+        if temp_sum == 10: # makes 10
+            move_mouse(x, y, temp_x, temp_y)
+            for i in range(temp_y, y + 1): # set all between to 0
+                board_map[i][x] = 0
+            return
+        elif temp_sum > 10: # 10 isnt possible
+            break
+        else: # sum is less than 10
+            temp_y-=1
+
+
+# while timer is not out
+TIMER_GREEN = (24, 204, 112)
+timer_px = board.getpixel((TIMER_X, TIMER_Y))
+while (timer_px == TIMER_GREEN):
+    for i in range(NUM_APPLES_Y):
+        for j in range(NUM_APPLES_X):
+            # run pair 10 algo on
+            pair_ten_algorithm(j, i)
+    timer_px = board.getpixel((TIMER_X, TIMER_Y))
