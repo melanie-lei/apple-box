@@ -153,16 +153,116 @@ def pair_ten_algorithm(x, y):
             break
         else: # sum is less than 10
             temp_y-=1
+    
+    temp_x = x + 1
+    temp_y = y + 1
+    temp_sum = curr_num
+    while temp_x < 17 and temp_y < 10:
+        for i in range(x, temp_x):
+            temp_sum += board_map[temp_y][i]
+        for j in range(y, temp_y):
+            temp_sum += board_map[j][temp_x]
+        temp_sum += board_map[temp_y][temp_x]
+        if temp_sum == 10: # makes 10
+            move_mouse(x, y, temp_x, temp_y)
+            for j in range(y, temp_y + 1):
+                for i in range(x, temp_x + 1): # set all between to 0
+                    board_map[j][i] = 0
+            return True
+        elif temp_sum > 10: # 10 isnt possible
+            break
+        else: # sum is less than 10
+            temp_x+=1
+            temp_y+=1
+    
+    temp_x = x + 1
+    temp_y = y - 1
+    temp_sum = curr_num
+    while temp_x < 17 and temp_y >= 0:
+        for i in range(x, temp_x):
+            temp_sum += board_map[temp_y][i]
+        for j in range(temp_y + 1, y + 1):
+            temp_sum += board_map[j][temp_x]
+        temp_sum += board_map[temp_y][temp_x]
+        if temp_sum == 10: # makes 10
+            move_mouse(x, y, temp_x, temp_y)
+            for j in range(temp_y, y + 1):
+                for i in range(x, temp_x + 1): # set all between to 0
+                    board_map[j][i] = 0
+            return True
+        elif temp_sum > 10: # 10 isnt possible
+            break
+        else: # sum is less than 10
+            temp_x+=1
+            temp_y-=1
+
+    
+    temp_x = x - 1
+    temp_y = y + 1
+    temp_sum = curr_num
+    while temp_x >= 0 and temp_y < 10:
+        for i in range(temp_x + 1, x + 1):
+            temp_sum += board_map[temp_y][i]
+        for j in range(y, temp_y):
+            temp_sum += board_map[j][temp_x]
+        temp_sum += board_map[temp_y][temp_x]
+        if temp_sum == 10: # makes 10
+            move_mouse(x, y, temp_x, temp_y)
+            for j in range(y, temp_y + 1):
+                for i in range(temp_x, x + 1): # set all between to 0
+                    board_map[j][i] = 0
+            return True
+        elif temp_sum > 10: # 10 isnt possible
+            break
+        else: # sum is less than 10
+            temp_x-=1
+            temp_y+=1
+
+
+    temp_x = x - 1
+    temp_y = y - 1
+    temp_sum = curr_num
+    while temp_x >= 0 and temp_y >= 0:
+        for i in range(temp_x + 1, x + 1):
+            temp_sum += board_map[temp_y][i]
+        for j in range(temp_y + 1, y + 1):
+            temp_sum += board_map[j][temp_x]
+        temp_sum += board_map[temp_y][temp_x]
+        if temp_sum == 10: # makes 10
+            move_mouse(x, y, temp_x, temp_y)
+            for j in range(temp_y, y + 1):
+                for i in range(temp_x, x + 1): # set all between to 0
+                    board_map[j][i] = 0
+            return True
+        elif temp_sum > 10: # 10 isnt possible
+            break
+        else: # sum is less than 10
+            temp_x-=1
+            temp_y-=1
+
     return False
 
 # while timer is not out
 TIMER_GREEN = (24, 204, 112)
 timer_px = board.getpixel((TIMER_X, TIMER_Y))
 game_valid = True
-while (timer_px == TIMER_GREEN and game_valid):
+optimizing = True
+curr_num = 9
+while (game_valid):
     game_valid = False
+    # find 9s first etc.
     for i in range(NUM_APPLES_Y):
         for j in range(NUM_APPLES_X):
-            # run pair 10 algo on
-            game_valid = pair_ten_algorithm(j, i)
-    timer_px = board.getpixel((TIMER_X, TIMER_Y))
+            # run pair 10 algo
+            if optimizing:
+                if board_map[i][j] == curr_num:
+                    if pair_ten_algorithm(j, i):
+                        game_valid = True
+            else:
+                if pair_ten_algorithm(j, i):
+                    game_valid = True
+
+    if curr_num > 6:
+        curr_num -= 1
+    else:
+        optimizing = False
