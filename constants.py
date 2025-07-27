@@ -1,0 +1,9 @@
+TOP_LEFT_X = 952
+TOP_LEFT_Y = 230
+
+APPLE_WIDTH = 36
+
+NUM_APPLES_X = 17
+NUM_APPLES_Y = 10
+
+board_map = [[0]*NUM_APPLES_X for i in range(NUM_APPLES_Y)]
