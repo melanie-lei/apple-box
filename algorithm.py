@@ -1,6 +1,7 @@
 import pyautogui as auto
 import constants as c
 from constants import board_map as map
+import math
 
 
 # movem mouse and delete from board
@@ -21,8 +22,8 @@ def move_mouse(from_x, from_y, to_x, to_y):
         to_pixel_y = c.TOP_LEFT_Y + to_y * c.APPLE_WIDTH - 5
 
     auto.moveTo(from_pixel_x, from_pixel_y, duration=.05)
-    multiplier = max(abs(from_x - to_x), abs(from_y - to_y))
-    auto.dragTo(to_pixel_x, to_pixel_y, .3*multiplier, auto.easeOutQuad, button="left")
+    multiplier = max(abs(from_x - to_x), abs(from_y - to_y)) + 1
+    auto.dragTo(to_pixel_x, to_pixel_y, .6*math.log(multiplier, 4), auto.easeOutQuad, button="left")
 
     x = min(from_x, to_x)
     ox = max(from_x, to_x)
